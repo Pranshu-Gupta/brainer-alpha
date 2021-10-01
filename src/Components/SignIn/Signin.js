@@ -1,11 +1,32 @@
 import React from 'react';
+import SimpleReactValidator from 'simple-react-validator';
 
 class Signin extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.validator = new SimpleReactValidator({
+      // element: (message, className) => <div className="invalid-feedback d-block">{message}</div>,
+      // locale: 'fr',
+      autoForceUpdate: this,
+      className: 'text-danger',
+      messages: {
+        // email: 'That is not an email.',
+        // default: "Womp! That's not right!"
+      },
+    });
+  }
   state = {
     signInEmail: '',
     signInPassword: '',
+    isPasswordShown: false,
+    errorMessage: '',
   };
 
+  togglePasswordVisiblity = () => {
+    const { isPasswordShown } = this.state;
+    this.setState({ isPasswordShown: !isPasswordShown });
+  };
   onEmailChange = (event) => {
     this.setState({ signInEmail: event.target.value });
   };
@@ -15,25 +36,40 @@ class Signin extends React.Component {
   };
 
   onSubmitSignIn = () => {
-    fetch('https://thawing-sierra-39693.herokuapp.com/signin', {
-      method: 'post',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: this.state.signInEmail,
-        password: this.state.signInPassword,
-      }),
-    })
-      .then((response) => response.json())
-      .then((user) => {
-        if (user.id) {
-          this.props.loadUser(user);
-          this.props.onRouteChange('home');
-        }
-      });
+    if (this.validator.allValid()) {
+      fetch('https://thawing-sierra-39693.herokuapp.com/signin', {
+        method: 'post',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: this.state.signInEmail,
+          password: this.state.signInPassword,
+        }),
+      })
+        .then((response) => {
+          if (response.ok) return response.json();
+          else throw Error('Invalid credentials');
+        })
+
+        .then((user) => {
+          if (user.id) {
+            this.props.loadUser(user);
+            this.props.onRouteChange('home');
+          }
+        })
+        .catch((err) => {
+          this.setState({
+            errorMessage: err.message,
+          });
+          console.log(this.state.errorMessage);
+        });
+    } else {
+      this.validator.showMessages();
+    }
   };
 
   render() {
     const { onRouteChange } = this.props;
+    const { isPasswordShown, errorMessage } = this.state;
     return (
       <article className='br3 ba b--black-10 mv4 w-100 w-50-m w-25-l mw6 shadow-5 center'>
         <main className='pa4 black-80'>
@@ -49,8 +85,15 @@ class Signin extends React.Component {
                   type='email'
                   name='email-address'
                   id='email-address'
+                  required
                   onChange={this.onEmailChange}
                 />
+                {this.validator.message(
+                  'email',
+                  this.state.signInEmail,
+                  'required|email',
+                  { className: 'text-danger washed-yellow pv1' }
+                )}
               </div>
               <div className='mv3'>
                 <label className='db fw6 lh-copy f6' htmlFor='password'>
@@ -58,13 +101,30 @@ class Signin extends React.Component {
                 </label>
                 <input
                   className='b pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100'
-                  type='password'
+                  type={isPasswordShown ? 'text' : 'password'}
                   name='password'
                   id='password'
+                  required
                   onChange={this.onPasswordChange}
                 />
+                <i
+                  className={
+                    !isPasswordShown
+                      ? 'fa fa-eye password-icon'
+                      : 'fa fa-eye-slash password-icon'
+                  }
+                  onClick={this.togglePasswordVisiblity}
+                />
+                {this.validator.message(
+                  'password',
+                  this.state.signInPassword,
+                  'required',
+                  { className: 'text-danger washed-yellow pv1' }
+                )}
               </div>
+              {errorMessage && <h4 className='red'> {errorMessage} </h4>}
             </fieldset>
+
             <div className=''>
               <input
                 className='b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib'

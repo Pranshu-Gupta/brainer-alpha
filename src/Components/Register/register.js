@@ -1,10 +1,30 @@
 import React, { Component } from 'react';
+import SimpleReactValidator from 'simple-react-validator';
 
 class register extends Component {
+  constructor(props) {
+    super(props);
+
+    this.validator = new SimpleReactValidator({
+      // element: (message, className) => <div className="invalid-feedback d-block">{message}</div>,
+      // locale: 'fr',
+      autoForceUpdate: this,
+      className: 'text-danger',
+      messages: {
+        // email: 'That is not an email.',
+        // default: "Womp! That's not right!"
+      },
+    });
+  }
   state = {
     email: '',
     password: '',
     name: '',
+    isPasswordShown: false,
+  };
+  togglePasswordVisiblity = () => {
+    const { isPasswordShown } = this.state;
+    this.setState({ isPasswordShown: !isPasswordShown });
   };
 
   onEmailChange = (event) => {
@@ -20,25 +40,30 @@ class register extends Component {
   };
 
   onSubmitSignIn = () => {
-    fetch('https://thawing-sierra-39693.herokuapp.com/register', {
-      method: 'post',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: this.state.email,
-        password: this.state.password,
-        name: this.state.name,
-      }),
-    })
-      .then((response) => response.json())
-      .then((user) => {
-        if (user.id) {
-          this.props.loadUser(user);
-          this.props.onRouteChange('home');
-        }
-      });
+    if (this.validator.allValid()) {
+      fetch('https://thawing-sierra-39693.herokuapp.com/register', {
+        method: 'post',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: this.state.email,
+          password: this.state.password,
+          name: this.state.name,
+        }),
+      })
+        .then((response) => response.json())
+        .then((user) => {
+          if (user.id) {
+            this.props.loadUser(user);
+            this.props.onRouteChange('home');
+          }
+        });
+    } else {
+      this.validator.showMessages();
+    }
   };
 
   render() {
+    const { isPasswordShown } = this.state;
     return (
       <article className='br3 ba b--black-10 mv4 w-100 w-50-m w-25-l mw6 shadow-5 center'>
         <main className='pa4 black-80'>
@@ -55,7 +80,14 @@ class register extends Component {
                   name='name'
                   id='name'
                   onChange={this.onNameChange}
+                  onBlur={() => this.validator.showMessageFor('name')}
                 />
+                {this.validator.message(
+                  'name',
+                  this.state.name,
+                  'required|alpha_space',
+                  { className: 'text-danger washed-yellow pv1' }
+                )}
               </div>
               <div className='mt3'>
                 <label className='db fw6 lh-copy f6' htmlFor='email-address'>
@@ -67,21 +99,46 @@ class register extends Component {
                   name='email-address'
                   id='email-address'
                   onChange={this.onEmailChange}
+                  onBlur={() => this.validator.showMessageFor('email')}
                 />
+                {this.validator.message(
+                  'email',
+                  this.state.email,
+                  'required|email',
+                  { className: 'text-danger washed-yellow pv1' }
+                )}
               </div>
               <div className='mv3'>
                 <label className='db fw6 lh-copy f6' htmlFor='password'>
                   Password
                 </label>
+
                 <input
                   className='b pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100'
-                  type='password'
+                  type={isPasswordShown ? 'text' : 'password'}
                   name='password'
                   id='password'
                   onChange={this.onPasswordChange}
+                  onBlur={() => this.validator.showMessageFor('password')}
                 />
+                <i
+                  className={
+                    !isPasswordShown
+                      ? 'fa fa-eye password-icon'
+                      : 'fa fa-eye-slash password-icon'
+                  }
+                  onClick={this.togglePasswordVisiblity}
+                />
+
+                {this.validator.message(
+                  'password',
+                  this.state.password,
+                  'required|min:8',
+                  { className: 'text-danger washed-yellow pv1' }
+                )}
               </div>
             </fieldset>
+
             <div className=''>
               <input
                 className='b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib'

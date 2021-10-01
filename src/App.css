@@ -2,16 +2,44 @@
   text-align: center;
 }
 
-.center{
-  display:flex;
+.center {
+  display: flex;
   justify-content: center;
 }
 
-.particles{
+.particles {
   position: fixed;
-  top:0;
-  right:0;
-  bottom:0;
-  left:0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: -1;
+}
+
+.rowC {
+  display: flex;
+  flex-flow: row wrap;
+
+  text-align: center;
+}
+.main > * {
+  padding: 10px;
+  flex: 1 100%;
+}
+.main {
+  margin: auto auto;
+  margin-right: 15vw;
+}
+@media all and (min-width: 800px) {
+  .main {
+    flex: 3 0px;
+  }
+}
+
+.password-icon {
+  position: absolute;
+  cursor: pointer;
+  padding: 10px;
+  /* min-width: 1px; */
+  text-align: center;
 }
