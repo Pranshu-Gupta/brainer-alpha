@@ -89,8 +89,12 @@ class Signin extends React.Component {
           this.props.onRouteChange('home');
         }
       } catch (error) {
+        this.setState({ loading: false });
+        // console.log(error);
         let errMes = '';
         if (error.response.status === 400) errMes = 'Invalid credentials!';
+        // else if (error.response.status === 401) errMes =
+        //                                      'User does not exist, kindly register!';
         else errMes = 'Error occurred while retrieving data!';
         this.setState({
           errorMessage: errMes,

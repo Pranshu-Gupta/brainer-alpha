@@ -13,7 +13,7 @@ import FaceRecognition from './Components/FaceRecognition/FaceRecognition';
 const initialState = {
   input: '',
   imageUrl: '',
-  box: {},
+  boxes: [],
   route: 'signin',
   isSignedIn: false,
   user: {
@@ -45,21 +45,22 @@ class App extends Component {
   };
 
   calculateFaceLocation = (data) => {
-    const clarifaiFace =
-      data.outputs[0].data.regions[0].region_info.bounding_box;
     const image = document.getElementById('inputimage');
     const width = Number(image.width);
     const height = Number(image.height);
-    return {
-      leftCol: clarifaiFace.left_col * width,
-      topRow: clarifaiFace.top_row * height,
-      rightCol: width - clarifaiFace.right_col * width,
-      bottomRow: height - clarifaiFace.bottom_row * height,
-    };
+    return data.outputs[0].data.regions.map((face) => {
+      const clarifaiFace = face.region_info.bounding_box;
+      return {
+        leftCol: clarifaiFace.left_col * width,
+        topRow: clarifaiFace.top_row * height,
+        rightCol: width - clarifaiFace.right_col * width,
+        bottomRow: height - clarifaiFace.bottom_row * height,
+      };
+    });
   };
 
-  displayFaceBox = (box) => {
-    this.setState({ box: box });
+  displayFaceBox = (boxes) => {
+    this.setState({ boxes: boxes });
   };
 
   OnInputChange = (event) => {
@@ -111,7 +112,7 @@ class App extends Component {
           console.log(err);
         });
     } else {
-      alert('Enter something!');
+      this.setState({ error: 'Enter something!' });
     }
   };
 
@@ -125,7 +126,7 @@ class App extends Component {
   };
 
   render() {
-    let { isSignedIn, imageUrl, route, box, error } = this.state;
+    let { isSignedIn, imageUrl, route, boxes, error } = this.state;
     return (
       <div className='App'>
         <Particles className='particles' params={particless} />
@@ -148,7 +149,7 @@ class App extends Component {
               onButtonSubmit={this.onButtonSubmit}
               enter={this.enter}
             />
-            <FaceRecognition box={box} imageUrl={imageUrl} />
+            <FaceRecognition boxes={boxes} imageUrl={imageUrl} />
             <br />
             {error && <i className='fa fa-warning f4 red'> {error}</i>}
           </div>
