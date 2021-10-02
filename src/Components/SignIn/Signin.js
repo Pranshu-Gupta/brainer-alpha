@@ -83,7 +83,7 @@ class Signin extends React.Component {
           }
         );
         const user = response.data;
-
+        this.setState({ loading: false });
         if (user.id) {
           this.props.loadUser(user);
           this.props.onRouteChange('home');
@@ -96,7 +96,6 @@ class Signin extends React.Component {
           errorMessage: errMes,
         });
       }
-      this.setState({ loading: false });
     } else {
       this.validator.showMessages();
     }

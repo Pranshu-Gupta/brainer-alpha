@@ -24,6 +24,7 @@ const initialState = {
     entries: 0,
     joined: '',
   },
+  error: '',
 };
 class App extends Component {
   constructor() {
@@ -80,7 +81,10 @@ class App extends Component {
           input: this.state.input,
         }),
       })
-        .then((response) => response.json())
+        .then((response) => {
+          if (response.ok) return response.json();
+          else throw Error('Enter a valid image URL!');
+        })
         .then((response) => {
           if (response) {
             fetch('https://thawing-sierra-39693.herokuapp.com/image', {
@@ -90,7 +94,10 @@ class App extends Component {
                 id: this.state.user.id,
               }),
             })
-              .then((response) => response.json())
+              .then((response) => {
+                if (response.ok) return response.json();
+                else throw Error('Unable to get response!');
+              })
               .then((count) => {
                 this.setState(
                   Object.assign(this.state.user, { entries: count })
@@ -100,7 +107,7 @@ class App extends Component {
           this.displayFaceBox(this.calculateFaceLocation(response));
         })
         .catch((err) => {
-          alert('Some Error Occurred!');
+          this.setState({ error: err.message });
           console.log(err);
         });
     } else {
@@ -118,7 +125,7 @@ class App extends Component {
   };
 
   render() {
-    let { isSignedIn, imageUrl, route, box } = this.state;
+    let { isSignedIn, imageUrl, route, box, error } = this.state;
     return (
       <div className='App'>
         <Particles className='particles' params={particless} />
@@ -142,6 +149,8 @@ class App extends Component {
               enter={this.enter}
             />
             <FaceRecognition box={box} imageUrl={imageUrl} />
+            <br />
+            {error && <i className='fa fa-warning f4 red'> {error}</i>}
           </div>
         ) : route === 'signin' ? (
           <Signin loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
