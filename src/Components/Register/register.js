@@ -21,6 +21,8 @@ class register extends Component {
     password: '',
     name: '',
     isPasswordShown: false,
+    loading: false,
+    errorMessage: '',
   };
   togglePasswordVisiblity = () => {
     const { isPasswordShown } = this.state;
@@ -41,6 +43,7 @@ class register extends Component {
 
   onSubmitSignIn = () => {
     if (this.validator.allValid()) {
+      this.setState({ loading: true });
       fetch('https://thawing-sierra-39693.herokuapp.com/register', {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
@@ -50,12 +53,23 @@ class register extends Component {
           name: this.state.name,
         }),
       })
-        .then((response) => response.json())
+        .then((response) => {
+          this.setState({ loading: false });
+          if (response.ok) return response.json();
+          else throw Error('Some Error occured!');
+        })
         .then((user) => {
           if (user.id) {
             this.props.loadUser(user);
             this.props.onRouteChange('home');
           }
+        })
+        .catch((err) => {
+          this.setState({
+            errorMessage: err.message,
+            loading: false,
+          });
+          console.log(this.state.errorMessage);
         });
     } else {
       this.validator.showMessages();
@@ -63,7 +77,7 @@ class register extends Component {
   };
 
   render() {
-    const { isPasswordShown } = this.state;
+    const { isPasswordShown, loading, errorMessage } = this.state;
     return (
       <article className='br3 ba b--black-10 mv4 w-100 w-50-m w-25-l mw6 shadow-5 center'>
         <main className='pa4 black-80'>
@@ -140,12 +154,15 @@ class register extends Component {
             </fieldset>
 
             <div className=''>
-              <input
+              <button
                 className='b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib'
                 onClick={this.onSubmitSignIn}
                 type='submit'
-                value='Register'
-              />
+              >
+                {loading && <i className='fa fa-refresh fa-spin'></i>}
+
+                {errorMessage ? errorMessage : !loading ? 'Register' : ''}
+              </button>
             </div>
           </div>
         </main>

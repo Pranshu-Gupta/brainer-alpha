@@ -1,5 +1,6 @@
 import React from 'react';
 import SimpleReactValidator from 'simple-react-validator';
+const { default: axios } = require('axios');
 
 class Signin extends React.Component {
   constructor(props) {
@@ -21,6 +22,7 @@ class Signin extends React.Component {
     signInPassword: '',
     isPasswordShown: false,
     errorMessage: '',
+    loading: false,
   };
 
   togglePasswordVisiblity = () => {
@@ -35,33 +37,66 @@ class Signin extends React.Component {
     this.setState({ signInPassword: event.target.value });
   };
 
-  onSubmitSignIn = () => {
-    if (this.validator.allValid()) {
-      fetch('https://thawing-sierra-39693.herokuapp.com/signin', {
-        method: 'post',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: this.state.signInEmail,
-          password: this.state.signInPassword,
-        }),
-      })
-        .then((response) => {
-          if (response.ok) return response.json();
-          else throw Error('Invalid credentials');
-        })
+  // onSubmitSignIn = () => {
+  //   if (this.validator.allValid()) {
+  //     this.setState({ loading: true });
+  //     fetch('https://thawing-sierra-39693.herokuapp.com/signin', {
+  //       method: 'post',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({
+  //         email: this.state.signInEmail,
+  //         password: this.state.signInPassword,
+  //       }),
+  //     })
+  //       .then((response) => {
+  //         this.setState({ loading: false });
+  //         if (response.ok) return response.json();
+  //         else throw Error('Invalid credentials');
+  //       })
 
-        .then((user) => {
-          if (user.id) {
-            this.props.loadUser(user);
-            this.props.onRouteChange('home');
+  //       .then((user) => {
+  //         if (user.id) {
+  //           this.props.loadUser(user);
+  //           this.props.onRouteChange('home');
+  //         }
+  //       })
+  //       .catch((err) => {
+  //         this.setState({
+  //           errorMessage: err.message,
+  //         });
+  //         console.log(this.state.errorMessage);
+  //       });
+  //   } else {
+  //     this.validator.showMessages();
+  //   }
+  // };
+
+  onSubmitSignIn = async () => {
+    if (this.validator.allValid()) {
+      try {
+        this.setState({ loading: true });
+        const response = await axios.post(
+          'https://thawing-sierra-39693.herokuapp.com/signin',
+          {
+            email: this.state.signInEmail,
+            password: this.state.signInPassword,
           }
-        })
-        .catch((err) => {
-          this.setState({
-            errorMessage: err.message,
-          });
-          console.log(this.state.errorMessage);
+        );
+        const user = response.data;
+
+        if (user.id) {
+          this.props.loadUser(user);
+          this.props.onRouteChange('home');
+        }
+      } catch (error) {
+        let errMes = '';
+        if (error.response.status === 400) errMes = 'Invalid credentials!';
+        else errMes = 'Error occurred while retrieving data!';
+        this.setState({
+          errorMessage: errMes,
         });
+      }
+      this.setState({ loading: false });
     } else {
       this.validator.showMessages();
     }
@@ -69,7 +104,7 @@ class Signin extends React.Component {
 
   render() {
     const { onRouteChange } = this.props;
-    const { isPasswordShown, errorMessage } = this.state;
+    const { isPasswordShown, errorMessage, loading } = this.state;
     return (
       <article className='br3 ba b--black-10 mv4 w-100 w-50-m w-25-l mw6 shadow-5 center'>
         <main className='pa4 black-80'>
@@ -126,12 +161,15 @@ class Signin extends React.Component {
             </fieldset>
 
             <div className=''>
-              <input
+              <button
                 className='b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib'
                 onClick={this.onSubmitSignIn}
                 type='submit'
-                value='Sign in'
-              />
+                // value={!loading ? 'Sign in' : 'Signing In'}
+              >
+                {loading && <i className='fa fa-refresh fa-spin'></i>}
+                {!loading ? ' Sign in' : ' Signing In'}
+              </button>
             </div>
             <div className='lh-copy mt3'>
               <p
