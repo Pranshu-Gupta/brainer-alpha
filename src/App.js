@@ -74,7 +74,7 @@ class App extends Component {
 
   onButtonSubmit = () => {
     if (this.state.input.length > 0) {
-      this.setState({ imageUrl: this.state.input });
+      this.setState({ imageUrl: this.state.input, boxes: [] });
       fetch('https://thawing-sierra-39693.herokuapp.com/imageurl', {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
