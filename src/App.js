@@ -116,6 +116,17 @@ class App extends Component {
     }
   };
 
+  // facePredict = () => {
+  //   // this.setState({ imageUrl: this.state.input });
+  //   app.models
+  //     .predict('a5d7776f0c064a41b48c3ce039049f65', this.state.input)
+  //     .then((response) => {
+  //       console.log(response);
+  //     })
+
+  //     .catch((err) => console.log(err));
+  // };
+
   onRouteChange = (route) => {
     if (route === 'signout') {
       this.setState(initialState);
