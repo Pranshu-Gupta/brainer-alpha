@@ -75,7 +75,7 @@ class App extends Component {
   onButtonSubmit = () => {
     if (this.state.input.length > 0) {
       this.setState({ imageUrl: this.state.input, boxes: [] });
-      fetch('https://thawing-sierra-39693.herokuapp.com/imageurl', {
+      fetch('https://brainer-api.vercel.app/imageurl', {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -88,7 +88,7 @@ class App extends Component {
         })
         .then((response) => {
           if (response) {
-            fetch('https://thawing-sierra-39693.herokuapp.com/image', {
+            fetch('https://brainer-api.vercel.app/image', {
               method: 'put',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({

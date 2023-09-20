@@ -44,7 +44,7 @@ class register extends Component {
   onSubmitSignIn = () => {
     if (this.validator.allValid()) {
       this.setState({ loading: true });
-      fetch('https://thawing-sierra-39693.herokuapp.com/register', {
+      fetch('https://brainer-api.vercel.app/register', {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
