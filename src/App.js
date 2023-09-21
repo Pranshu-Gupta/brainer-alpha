@@ -74,7 +74,7 @@ class App extends Component {
 
 
   performFacialRecognition = async () => {
-    const PAT = process.env.PAT;
+    const PAT = process.env.REACT_APP_PAT;
     // Specify the correct user_id/app_id pairings
     // Since you're making inferences outside your app's scope
     const USER_ID = 'clarifai';
@@ -113,6 +113,7 @@ class App extends Component {
   onButtonSubmit = () => {
     if (this.state.input.length > 0) {
       this.setState({ imageUrl: this.state.input, boxes: [] });
+
       this.performFacialRecognition()
         .then((response) => {
           if (response.ok) return response.json();
