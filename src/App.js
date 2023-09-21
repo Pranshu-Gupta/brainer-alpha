@@ -72,16 +72,48 @@ class App extends Component {
     }
   };
 
+
+  performFacialRecognition = async () => {
+    const PAT = process.env.PAT;
+    // Specify the correct user_id/app_id pairings
+    // Since you're making inferences outside your app's scope
+    const USER_ID = 'clarifai';
+    const APP_ID = 'main';
+    // Change these to whatever model and image URL you want to use
+    const MODEL_ID = 'face-detection';
+    const MODEL_VERSION_ID = '6dc7e46bc9124c5c8824be4822abe105';
+    const IMAGE_URL = this.state.input;
+    const raw = JSON.stringify({
+      "user_app_id": {
+        "user_id": USER_ID,
+        "app_id": APP_ID
+      },
+      "inputs": [
+        {
+          "data": {
+            "image": {
+              "url": IMAGE_URL
+            }
+          }
+        }
+      ]
+    });
+
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Key ' + PAT
+      },
+      body: raw
+    };
+    return await fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/versions/" + MODEL_VERSION_ID + "/outputs", requestOptions);
+  };
+
   onButtonSubmit = () => {
     if (this.state.input.length > 0) {
       this.setState({ imageUrl: this.state.input, boxes: [] });
-      fetch('https://brainer-api.vercel.app/imageurl', {
-        method: 'post',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          input: this.state.input,
-        }),
-      })
+      this.performFacialRecognition()
         .then((response) => {
           if (response.ok) return response.json();
           else throw Error('Enter a valid image URL!');
@@ -115,17 +147,6 @@ class App extends Component {
       this.setState({ error: 'Enter something!' });
     }
   };
-
-  // facePredict = () => {
-  //   // this.setState({ imageUrl: this.state.input });
-  //   app.models
-  //     .predict('a5d7776f0c064a41b48c3ce039049f65', this.state.input)
-  //     .then((response) => {
-  //       console.log(response);
-  //     })
-
-  //     .catch((err) => console.log(err));
-  // };
 
   onRouteChange = (route) => {
     if (route === 'signout') {
