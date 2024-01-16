@@ -186,7 +186,7 @@ class App extends Component {
             <br />
             {error && <i className='fa fa-warning f4 red'> {error}</i>}
           </div>
-        ) : route === 'signin' ? (
+        ) : (route === 'signin' || route === 'signout') ? (
           <Signin loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
         ) : (
           <Register

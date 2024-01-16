@@ -18,8 +18,8 @@ class Signin extends React.Component {
     });
   }
   state = {
-    signInEmail: '',
-    signInPassword: '',
+    signInEmail: 'test123@gmail.com',
+    signInPassword: 'test1234',
     isPasswordShown: false,
     errorMessage: '',
     loading: false,
@@ -37,39 +37,6 @@ class Signin extends React.Component {
     this.setState({ signInPassword: event.target.value });
   };
 
-  // onSubmitSignIn = () => {
-  //   if (this.validator.allValid()) {
-  //     this.setState({ loading: true });
-  //     fetch('https://thawing-sierra-39693.herokuapp.com/signin', {
-  //       method: 'post',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify({
-  //         email: this.state.signInEmail,
-  //         password: this.state.signInPassword,
-  //       }),
-  //     })
-  //       .then((response) => {
-  //         this.setState({ loading: false });
-  //         if (response.ok) return response.json();
-  //         else throw Error('Invalid credentials');
-  //       })
-
-  //       .then((user) => {
-  //         if (user.id) {
-  //           this.props.loadUser(user);
-  //           this.props.onRouteChange('home');
-  //         }
-  //       })
-  //       .catch((err) => {
-  //         this.setState({
-  //           errorMessage: err.message,
-  //         });
-  //         console.log(this.state.errorMessage);
-  //       });
-  //   } else {
-  //     this.validator.showMessages();
-  //   }
-  // };
 
   onSubmitSignIn = async () => {
     if (this.validator.allValid()) {
@@ -125,6 +92,7 @@ class Signin extends React.Component {
                   id='email-address'
                   required
                   onChange={this.onEmailChange}
+                  defaultValue={'test123@gmail.com'}
                 />
                 {this.validator.message(
                   'email',
@@ -144,6 +112,7 @@ class Signin extends React.Component {
                   id='password'
                   required
                   onChange={this.onPasswordChange}
+                  defaultValue={'test1234'}
                 />
                 <i
                   className={
@@ -168,7 +137,7 @@ class Signin extends React.Component {
                 className='b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib'
                 onClick={this.onSubmitSignIn}
                 type='submit'
-                // value={!loading ? 'Sign in' : 'Signing In'}
+              // value={!loading ? 'Sign in' : 'Signing In'}
               >
                 {loading && <i className='fa fa-refresh fa-spin'></i>}
                 {!loading ? ' Sign in' : ' Signing In'}
